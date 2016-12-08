@@ -1,0 +1,46 @@
+2.0版本有个问题:运行一会会弹错,再次运行也可以,应该是我的request库用的有问题,附上错误信息
+Traceback (most recent call last):
+  File "C:\Users\yy\AppData\Local\Programs\Python\Python35\lib\urllib\request.py", line 1254, in do_open
+    h.request(req.get_method(), req.selector, req.data, headers)
+  File "C:\Users\yy\AppData\Local\Programs\Python\Python35\lib\http\client.py", line 1106, in request
+    self._send_request(method, url, body, headers)
+  File "C:\Users\yy\AppData\Local\Programs\Python\Python35\lib\http\client.py", line 1151, in _send_request
+    self.endheaders(body)
+  File "C:\Users\yy\AppData\Local\Programs\Python\Python35\lib\http\client.py", line 1102, in endheaders
+    self._send_output(message_body)
+  File "C:\Users\yy\AppData\Local\Programs\Python\Python35\lib\http\client.py", line 934, in _send_output
+    self.send(msg)
+  File "C:\Users\yy\AppData\Local\Programs\Python\Python35\lib\http\client.py", line 877, in send
+    self.connect()
+  File "C:\Users\yy\AppData\Local\Programs\Python\Python35\lib\http\client.py", line 1252, in connect
+    super().connect()
+  File "C:\Users\yy\AppData\Local\Programs\Python\Python35\lib\http\client.py", line 849, in connect
+    (self.host,self.port), self.timeout, self.source_address)
+  File "C:\Users\yy\AppData\Local\Programs\Python\Python35\lib\socket.py", line 693, in create_connection
+    for res in getaddrinfo(host, port, 0, SOCK_STREAM):
+  File "C:\Users\yy\AppData\Local\Programs\Python\Python35\lib\socket.py", line 732, in getaddrinfo
+    for res in _socket.getaddrinfo(host, port, family, type, proto, flags):
+socket.gaierror: [Errno 11001] getaddrinfo failed
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\workspace\zhihu girl exe\src\classify_getdown.py", line 127, in <module>
+    getdown_img(re_imglist,qa_num,user)
+  File "D:\workspace\zhihu girl exe\src\classify_getdown.py", line 88, in getdown_img
+    urllib.request.urlretrieve(imgurl, '%s\\%s-%s.jpg'%(user,t,i))
+  File "C:\Users\yy\AppData\Local\Programs\Python\Python35\lib\urllib\request.py", line 188, in urlretrieve
+    with contextlib.closing(urlopen(url, data)) as fp:
+  File "C:\Users\yy\AppData\Local\Programs\Python\Python35\lib\urllib\request.py", line 163, in urlopen
+    return opener.open(url, data, timeout)
+  File "C:\Users\yy\AppData\Local\Programs\Python\Python35\lib\urllib\request.py", line 466, in open
+    response = self._open(req, data)
+  File "C:\Users\yy\AppData\Local\Programs\Python\Python35\lib\urllib\request.py", line 484, in _open
+    '_open', req)
+  File "C:\Users\yy\AppData\Local\Programs\Python\Python35\lib\urllib\request.py", line 444, in _call_chain
+    result = func(*args)
+  File "C:\Users\yy\AppData\Local\Programs\Python\Python35\lib\urllib\request.py", line 1297, in https_open
+    context=self._context, check_hostname=self._check_hostname)
+  File "C:\Users\yy\AppData\Local\Programs\Python\Python35\lib\urllib\request.py", line 1256, in do_open
+    raise URLError(err)
+urllib.error.URLError: <urlopen error [Errno 11001] getaddrinfo failed>
