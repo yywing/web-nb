@@ -4,16 +4,39 @@ Created on 2016��11��18��
 
 @author: yy
 '''
-import urllib.request
+import urllib.request, urllib.parse, urllib.error
+import http.cookiejar
 import re
 
-def get_url(url):
-    page =urllib.request.urlopen(url)
-    html=page.read()
-    html=html.decode('UTF-8')
-    page.close()
-    return html
+def get_cookie():                                                           #新增cookie抓取,因为有些答案不登陆无法访问
+    LOGIN_URL = 'https://www.zhihu.com/login/phone_num'
+    phone_num=input('输入手机号:')
+    password=input('输入登陆密码:')
+    values = {'phone_num': phone_num, 'password': password,'remember_me':'ture'}
+    postdata = urllib.parse.urlencode(values).encode()
+    user_agent = r'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.157 Safari/537.36'
+    headers = {'User-Agent': user_agent, 'Connection': 'keep-alive'}
+    cookie_filename = 'cookie.txt'
+    cookie = http.cookiejar.MozillaCookieJar(cookie_filename)
+    handler = urllib.request.HTTPCookieProcessor(cookie)
+    opener = urllib.request.build_opener(handler)
+    request = urllib.request.Request(LOGIN_URL, postdata, headers)
+    response = opener.open(request)
+    page = response.read().decode()
+    cookie.save(ignore_discard=True, ignore_expires=True)  # 保存cookie到cookie.txt中
 
+def get_url(url):
+    user_agent = r'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.157 Safari/537.36'
+    headers = {'User-Agent': user_agent, 'Connection': 'keep-alive'}
+    cookie_filename = 'cookie.txt'
+    cookie = http.cookiejar.MozillaCookieJar(cookie_filename)
+    cookie.load(cookie_filename, ignore_discard=True, ignore_expires=True)
+    handler = urllib.request.HTTPCookieProcessor(cookie)
+    opener = urllib.request.build_opener(handler)
+    request = urllib.request.Request(url,headers=headers)
+    page = opener.open(request)
+    html=page.read().decode()
+    return html
 
 def get_page(html):
     reg='\"\?page=([0-9]+)\"'    #知乎收藏夹页面属性
@@ -39,9 +62,9 @@ def get_all_qa(qalist,all_qalist):     #去重复,并最终生成收藏问题列
 
 def get_img(one_qa):              #打开问题答案页面
     url3='https://www.zhihu.com'
-    url4=url3+'/question/%s/answer/%s'%(one_qa[0],one_qa[1])     
+    url4=url3+'/question/%s/answer/%s'%(one_qa[0],one_qa[1])
     html=get_url(url4)
-    reg='src=\"([^\"]+?_b.jpg)\"'                         #此处可以改进,而且正则表达式可能有点问题,会漏抓,还有其他形式的图片如png
+    reg='data-original=\"([^_]+?_r.jpg)\"'                         #知乎网站代码更新了,原来的正则修改了
     imgre=re.compile(reg)
     imglist=re.findall(imgre,html)
     return imglist
@@ -62,7 +85,9 @@ def getdown_img(re_imglist,t):                    #下载图片文件到本地
     print ('%s Done'%t)
 
     
-
+judge=input('是否拥有cookie(y or n):')
+if judge=='n':
+    get_cookie()
 url=input('请输入url:(友情提示一会还要输入一次题号)')                                    #主程序开始
 html=get_url(url)
 pagenumber=get_page(html)
@@ -86,14 +111,10 @@ for i in range(jianyi,len(all_qalist)):
     for i in imglist:
         if not i in re_imglist:
             re_imglist.append(i)
-    
     getdown_img(re_imglist,t)
     t+=1
 print('all done')
-
-
-
-
+input("Prease <enter>")                             #本意是想让程序运行完界面保留住,不过没测试过
     
     
     
