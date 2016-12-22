@@ -1,3 +1,7 @@
+
+
+
+
 #coding=utf-8
 '''
 Created on 2016��11��18��
@@ -114,11 +118,6 @@ def show_update(all_down_file):
     print('update.html 已生成！')
 
 def main():
-    judge=input('是否拥有cookie(y or n):')            #主程序开始
-    if judge=='n':
-        get_cookie()
-    judge=input('请将collection.txt放入文件夹!')
-    judge=input('请确认col_qalist.txt都已经全部生成!')
     col_num=get_col_num()
     all_down_file=[]
     for i in range(1,col_num+1):                      #建立dir建立txt dirname=username  txt包含qa
@@ -150,11 +149,7 @@ def main():
                     if not i in re_imglist:
                         re_imglist.append(i)
                 down_file=[]
-                try:            
-                    down_file=getdown_img(re_imglist,qa_num,user,down_file)
-                except:
-                    print('出错但是没问题继续！')
-                    down_file=getdown_img(re_imglist,qa_num,user,down_file)
+                down_file=getdown_img(re_imglist,qa_num,user,down_file)
                 all_down_file.extend(down_file)
                 file=open('%s\\qa.txt'%user,'ab')
                 file.write(qa)
@@ -163,11 +158,26 @@ def main():
                 file.close
         print('一个收藏夹已完成')
     show_update(all_down_file)
-    print('all done')
 
 
-main()             
+def func():                 #防止网络延时错误
+    try:
+        main()
+    except:
+        print('有一个错误')
+        return False
+    else:
+        return True
+        
+ 
 
 
-
-
+judge=input('是否拥有cookie(y or n):')            #主程序开始
+if judge=='n':
+    get_cookie()
+judge=input('请将collection.txt放入文件夹!')
+judge=input('请确认col_qalist.txt都已经全部生成!')
+while not func():
+    pass 
+print('all done')
+  
