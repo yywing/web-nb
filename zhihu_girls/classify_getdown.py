@@ -12,7 +12,6 @@ import os
 def get_col_num():
     file=open('collection.txt','r')
     collection=file.readlines()
-    collection.remove('\n')
     col_num=len(collection)
     return col_num
 
@@ -93,7 +92,7 @@ def getdown_img(re_imglist,t,user,down_file):                    #下载图片�
     print ('%s:%s Done'%(user,t))
     return down_file
 
-def show_update(all_down_file):                             #每次更新后挨个文件夹查看不方便，于是生成一个html显示更新的图片
+def show_update(all_down_file):
     file=open('update.html','w')
     html_1='''<html>
     <head>
@@ -114,56 +113,60 @@ def show_update(all_down_file):                             #每次更新后挨�
     file.close
     print('update.html 已生成！')
 
-
-judge=input('是否拥有cookie(y or n):')            #主程序开始
-if judge=='n':
-    get_cookie()
-judge=input('请将collection.txt放入文件夹!')
-judge=input('请确认col_qalist.txt都已经全部生成!')
-col_num=get_col_num()
-all_down_file=[]
-for i in range(1,col_num+1):                      #建立dir建立txt dirname=username  txt包含qa
-    uqa_str=get_uqa_str(i)
-    for j in uqa_str:
-        s=':'
-        s_b=s.encode()
-        uqa=j.split(s_b)
-        user_b=uqa[0]
-        user=user_b.decode()
-        qa=uqa[1]
-        dir_list=get_dir_list()
-        if user not in dir_list:
-            new_dir(user)
-        file=open('%s\\qa.txt'%user,'rb')
-        qa_list=file.readlines()
-        if qa not in qa_list:
-            file.close
-            qa_num=len(qa_list)+1
-            s=' '
+def main():
+    judge=input('是否拥有cookie(y or n):')            #主程序开始
+    if judge=='n':
+        get_cookie()
+    judge=input('请将collection.txt放入文件夹!')
+    judge=input('请确认col_qalist.txt都已经全部生成!')
+    col_num=get_col_num()
+    all_down_file=[]
+    for i in range(1,col_num+1):                      #建立dir建立txt dirname=username  txt包含qa
+        uqa_str=get_uqa_str(i)
+        for j in uqa_str:
+            s=':'
             s_b=s.encode()
-            qa_s=qa.split(s_b)
-            q=qa_s[0].decode()
-            a=qa_s[1].decode()
-            a=a[:-2]
-            imglist=get_img(q, a)
-            re_imglist=[]
-            for i in imglist:
-                if not i in re_imglist:
-                    re_imglist.append(i)
-            down_file=[]            
-            down_file=getdown_img(re_imglist,qa_num,user,down_file)
-            all_down_file.extend(down_file)
-            file=open('%s\\qa.txt'%user,'ab')
-            file.write(qa)
-            file.close
-        else:
-            file.close
-    print('一个收藏夹已完成')
-show_update(all_down_file)
-print('all done')
-            
-            
-                
+            uqa=j.split(s_b)
+            user_b=uqa[0]
+            user=user_b.decode()
+            qa=uqa[1]
+            dir_list=get_dir_list()
+            if user not in dir_list:
+                new_dir(user)
+            file=open('%s\\qa.txt'%user,'rb')
+            qa_list=file.readlines()
+            if qa not in qa_list:
+                file.close
+                qa_num=len(qa_list)+1
+                s=' '
+                s_b=s.encode()
+                qa_s=qa.split(s_b)
+                q=qa_s[0].decode()
+                a=qa_s[1].decode()
+                a=a[:-2]
+                imglist=get_img(q, a)
+                re_imglist=[]
+                for i in imglist:
+                    if not i in re_imglist:
+                        re_imglist.append(i)
+                down_file=[]
+                try:            
+                    down_file=getdown_img(re_imglist,qa_num,user,down_file)
+                except:
+                    print('出错但是没问题继续！')
+                    down_file=getdown_img(re_imglist,qa_num,user,down_file)
+                all_down_file.extend(down_file)
+                file=open('%s\\qa.txt'%user,'ab')
+                file.write(qa)
+                file.close
+            else:
+                file.close
+        print('一个收藏夹已完成')
+    show_update(all_down_file)
+    print('all done')
+
+
+main()             
 
 
 
