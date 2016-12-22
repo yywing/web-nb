@@ -1,7 +1,7 @@
 #coding=utf-8
 '''
 Created on 2016��11��18��
-中国
+
 @author: yy
 '''
 
@@ -73,9 +73,12 @@ if judge=='n':
 judge=input('请将collection.txt放入文件夹!')
 file=open('collection.txt','r')
 urllist=file.readlines()
+urllist.remove('\n')
 file.close
 col_num=1
 for url in urllist:
+    if url=='':
+        break
     url=url[:-1]                                #去掉换行符
     html=get_url(url)
     pagenumber=get_page(html)
@@ -92,10 +95,17 @@ for url in urllist:
     print('%d collection qalist write'%col_num)
     col_num+=1
     #完成一个收藏夹的qa收集
+print('all done!')
 
 
 
 
+
+
+
+
+    
+    
 
 
 
