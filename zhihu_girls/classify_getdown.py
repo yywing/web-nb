@@ -28,7 +28,7 @@ def get_dir_list():                                  #得到user dir信息
     return dir_list
 
 def get_uqa_str(i):
-    file=open('%d_col_qalist.txt'%i,'rb')
+    file=open('collection\\%d_col_qalist.txt'%i,'rb')
     uqa_str=file.readlines()
     return uqa_str
 
