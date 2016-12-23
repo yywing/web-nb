@@ -59,7 +59,7 @@ def get_re_qa(qalist,re_qalist):     #去重复,并最终生成收藏问题列�
     return re_qalist
 
 def write_re_qalist(col_num,re_qalist):
-    file=open('%d_col_qalist.txt'%col_num,'wb')
+    file=open('collection\\%d_col_qalist.txt'%col_num,'wb')
     for i in range(0,len(re_qalist)):
         wri_lin=re_qalist[i][0]+':'+re_qalist[i][1]+' '+re_qalist[i][2]+'\r\n'
         file.write(wri_lin.encode())
