@@ -21,7 +21,6 @@ def get_qa_num(dir):
 def get_col_num():
     file=open('collection.txt','r')
     collection=file.readlines()
-    collection.remove('\n')
     col_num=len(collection)
     return col_num
 
