@@ -9,6 +9,7 @@ def get_dir_list():                                 #简单的统计一下爬取
     for i in file_list:
         if os.path.isdir(i):
             dir_list.append(i)
+    dir_list.remove('collection')
     return dir_list
 
 def get_qa_num(dir):
@@ -25,7 +26,7 @@ def get_col_num():
     return col_num
 
 def get_uqa_str(i):
-    file=open('%d_col_qalist.txt'%i,'rb')
+    file=open('collection\\%d_col_qalist.txt'%i,'rb')
     uqa_str=file.readlines()
     return uqa_str
 
