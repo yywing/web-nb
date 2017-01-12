@@ -1,7 +1,3 @@
-
-
-
-
 #coding=utf-8
 '''
 Created on 2016��11��18��
@@ -12,6 +8,7 @@ import urllib.request, urllib.parse
 import http.cookiejar
 import re
 import os
+import socket
 
 def get_col_num():
     file=open('collection.txt','r')
@@ -90,13 +87,22 @@ def getdown_img(re_imglist,t,user,down_file):                    #下载图片�
     i=1
     for imgurl in re_imglist:
         s= '%s\\%s-%s.jpg'%(user,t,i)
-        urllib.request.urlretrieve(imgurl, s)
+        fun(imgurl,s)
         down_file.append(s)
         i+=1
     print ('%s:%s Done'%(user,t))
     return down_file
 
-def show_update(all_down_file):
+def fun(imgurl,s):                                                  #循环出错下载
+    try:
+        socket.setdefaulttimeout(40)                        #未测试
+        urllib.request.urlretrieve(imgurl, s)
+    except Exception as e:
+        print(e)
+        fun(imgurl,s)
+
+
+def show_update(all_down_file):                         #生成html更新文件
     file=open('update.html','w')
     html_1='''<html>
     <head>
@@ -116,59 +122,9 @@ def show_update(all_down_file):
     file.write(html_2)
     file.close
     print('update.html 已生成！')
-
-def main():
-    col_num=get_col_num()
-    all_down_file=[]
-    for i in range(1,col_num+1):                      #建立dir建立txt dirname=username  txt包含qa
-        uqa_str=get_uqa_str(i)
-        for j in uqa_str:
-            s=':'
-            s_b=s.encode()
-            uqa=j.split(s_b)
-            user_b=uqa[0]
-            user=user_b.decode()
-            qa=uqa[1]
-            dir_list=get_dir_list()
-            if user not in dir_list:
-                new_dir(user)
-            file=open('%s\\qa.txt'%user,'rb')
-            qa_list=file.readlines()
-            if qa not in qa_list:
-                file.close
-                qa_num=len(qa_list)+1
-                s=' '
-                s_b=s.encode()
-                qa_s=qa.split(s_b)
-                q=qa_s[0].decode()
-                a=qa_s[1].decode()
-                a=a[:-2]
-                imglist=get_img(q, a)
-                re_imglist=[]
-                for i in imglist:
-                    if not i in re_imglist:
-                        re_imglist.append(i)
-                down_file=[]
-                down_file=getdown_img(re_imglist,qa_num,user,down_file)
-                all_down_file.extend(down_file)
-                file=open('%s\\qa.txt'%user,'ab')
-                file.write(qa)
-                file.close
-            else:
-                file.close
-        print('一个收藏夹已完成')
-    show_update(all_down_file)
-
-
-def func():                 #防止网络延时错误
-    try:
-        main()
-    except:
-        print('有一个错误')
-        return False
-    else:
-        return True
+    
         
+    
  
 
 
@@ -177,7 +133,49 @@ if judge=='n':
     get_cookie()
 judge=input('请将collection.txt放入文件夹!')
 judge=input('请确认col_qalist.txt都已经全部生成!')
-while not func():
-    pass 
+col_num=get_col_num()
+all_down_file=[]
+for i in range(1,col_num+1):                      #建立dir建立txt dirname=username  txt包含qa
+    uqa_str=get_uqa_str(i)
+    for j in uqa_str:
+        s=':'
+        s_b=s.encode()
+        uqa=j.split(s_b)
+        user_b=uqa[0]
+        user=user_b.decode()
+        qa=uqa[1]
+        dir_list=get_dir_list()
+        if user not in dir_list:
+            new_dir(user)
+        file=open('%s\\qa.txt'%user,'rb')
+        qa_list=file.readlines()
+        if qa not in qa_list:
+            file.close
+            qa_num=len(qa_list)+1
+            s=' '
+            s_b=s.encode()
+            qa_s=qa.split(s_b)
+            q=qa_s[0].decode()
+            a=qa_s[1].decode()
+            a=a[:-2]
+            imglist=get_img(q, a)
+            re_imglist=[]
+            for i in imglist:
+                if not i in re_imglist:
+                    re_imglist.append(i)
+            down_file=[]
+            down_file=getdown_img(re_imglist,qa_num,user,down_file)
+
+            file=open('%s\\qa.txt'%user,'ab')
+            file.write(qa)
+            file.close
+        else:
+            file.close
+    print('第%d个收藏夹已完成'%i)    
+show_update(all_down_file)
 print('all done')
-  
+            
+
+
+
+
