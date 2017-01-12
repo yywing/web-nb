@@ -8,7 +8,15 @@ import urllib.request, urllib.parse
 import http.cookiejar
 import re
 import os
-import socket
+
+
+def openurl(opener,request):                  #opener.open异常
+    try:
+        response=opener.open(request)
+    except Exception as e :
+        print(type(e),e)
+        openurl(request)
+    return response
 
 def get_col_num():
     file=open('collection.txt','r')
@@ -23,6 +31,16 @@ def get_dir_list():                                  #得到user dir信息
         if os.path.isdir(i):
             dir_list.append(i)
     return dir_list
+
+def get_rename(dir_list):
+    rename={}
+    for i in dir_list:
+        if i[-4:] == '0828':
+            t=i[:-4]
+            rename[t]=i
+    return(rename)
+
+
 
 def get_uqa_str(i):
     file=open('collection\\%d_col_qalist.txt'%i,'rb')
@@ -49,7 +67,7 @@ def get_cookie():
     handler = urllib.request.HTTPCookieProcessor(cookie)
     opener = urllib.request.build_opener(handler)
     request = urllib.request.Request(LOGIN_URL, postdata, headers)
-    response = opener.open(request)
+    response = openurl(opener,request)
     page = response.read().decode()
     cookie.save(ignore_discard=True, ignore_expires=True)  # 保存cookie到cookie.txt中
 
@@ -63,7 +81,7 @@ def get_url(url):
     handler = urllib.request.HTTPCookieProcessor(cookie)
     opener = urllib.request.build_opener(handler)
     request = urllib.request.Request(url,headers=headers)
-    page = opener.open(request)
+    page = openurl(opener,request)
     html=page.read().decode()
     return html
 
@@ -95,10 +113,9 @@ def getdown_img(re_imglist,t,user,down_file):                    #下载图片�
 
 def fun(imgurl,s):                                                  #循环出错下载
     try:
-        socket.setdefaulttimeout(40)                        #未测试
         urllib.request.urlretrieve(imgurl, s)
     except Exception as e:
-        print(e)
+        print(type(e),e)
         fun(imgurl,s)
 
 
@@ -145,8 +162,15 @@ for i in range(1,col_num+1):                      #建立dir建立txt dirname=us
         user=user_b.decode()
         qa=uqa[1]
         dir_list=get_dir_list()
+        rename=get_rename(dir_list)
         if user not in dir_list:
-            new_dir(user)
+            try:
+                new_dir(user)
+            except Exception as e :
+                print(type(e),e)
+                if user not in rename.keys():
+                    user=user+'0828'                   #文件夹命名大小写不敏感，防重复
+                    new_dir(user)             
         file=open('%s\\qa.txt'%user,'rb')
         qa_list=file.readlines()
         if qa not in qa_list:
@@ -160,9 +184,9 @@ for i in range(1,col_num+1):                      #建立dir建立txt dirname=us
             a=a[:-2]
             imglist=get_img(q, a)
             re_imglist=[]
-            for i in imglist:
-                if not i in re_imglist:
-                    re_imglist.append(i)
+            for t in imglist:
+                if not t in re_imglist:
+                    re_imglist.append(t)
             down_file=[]
             down_file=getdown_img(re_imglist,qa_num,user,down_file)
 
