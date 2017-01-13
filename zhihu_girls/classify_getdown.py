@@ -8,6 +8,7 @@ import urllib.request, urllib.parse
 import http.cookiejar
 import re
 import os
+import socket
 
 
 def openurl(opener,request):                  #opener.open异常
@@ -103,17 +104,33 @@ def get_all_img(imglist,all_imglist):                      #去重复,并生成�
 
 def getdown_img(re_imglist,t,user,down_file):                    #下载图片文件到本地,并记录下载文件名
     i=1
+    n=len(re_imglist)
+    print('           /%3d\r'%n,end='')
     for imgurl in re_imglist:
         s= '%s\\%s-%s.jpg'%(user,t,i)
+        print("        %3d\r"%i,end='')
         fun(imgurl,s)
         down_file.append(s)
         i+=1
-    print ('%s:%s Done'%(user,t))
+    print ('%s:%s Done         '%(user,t))
     return down_file
+
+def schedule(a,b,c):                            #下载进度
+    '''''
+    a:已经下载的数据块
+    b:数据块的大小
+    c:远程文件的大小
+   '''
+    per = 100.0 * a * b / c
+    if per > 100 :
+        per = 100
+    print ('%6.2f%%\r' % per,end='')
+
 
 def fun(imgurl,s):                                                  #循环出错下载
     try:
-        urllib.request.urlretrieve(imgurl, s)
+        socket.setdefaulttimeout(30)
+        urllib.request.urlretrieve(imgurl, s,schedule)
     except Exception as e:
         print(type(e),e)
         fun(imgurl,s)
@@ -170,7 +187,9 @@ for i in range(1,col_num+1):                      #建立dir建立txt dirname=us
                 print(type(e),e)
                 if user not in rename.keys():
                     user=user+'0828'                   #文件夹命名大小写不敏感，防重复
-                    new_dir(user)             
+                    new_dir(user)
+                else:
+                    user=user+'0828'
         file=open('%s\\qa.txt'%user,'rb')
         qa_list=file.readlines()
         if qa not in qa_list:
