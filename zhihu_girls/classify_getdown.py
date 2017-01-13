@@ -33,15 +33,13 @@ def get_dir_list():                                  #得到user dir信息
             dir_list.append(i)
     return dir_list
 
-def get_rename(dir_list):
+def get_rename(dir_list):                       #得到重名文件夹字典
     rename={}
     for i in dir_list:
         if i[-4:] == '0828':
             t=i[:-4]
             rename[t]=i
     return(rename)
-
-
 
 def get_uqa_str(i):
     file=open('collection\\%d_col_qalist.txt'%i,'rb')
@@ -52,7 +50,7 @@ def new_dir(dirname):
     os.makedirs(dirname)
     file=open('%s\\qa.txt'%dirname,'wb')
     file.close
-    print('%s 向您奔来!'%dirname )
+    print('%s 向您奔来!                                          \r'%dirname,end='' )
     
 
 def get_cookie():
@@ -71,7 +69,6 @@ def get_cookie():
     response = openurl(opener,request)
     page = response.read().decode()
     cookie.save(ignore_discard=True, ignore_expires=True)  # 保存cookie到cookie.txt中
-
 
 def get_url(url):
     user_agent = r'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.157 Safari/537.36'
@@ -101,18 +98,17 @@ def get_all_img(imglist,all_imglist):                      #去重复,并生成�
             all_imglist.append(i)
     return all_imglist
 
-
 def getdown_img(re_imglist,t,user,down_file):                    #下载图片文件到本地,并记录下载文件名
     i=1
-    n=len(re_imglist)
-    print('           /%3d\r'%n,end='')
+    n=len(re_imglist)    
     for imgurl in re_imglist:
+        print('           /%3d                                \r'%n,end='')
         s= '%s\\%s-%s.jpg'%(user,t,i)
         print("        %3d\r"%i,end='')
         fun(imgurl,s)
         down_file.append(s)
         i+=1
-    print ('%s:%s Done         '%(user,t))
+    print ('%s:%s Done                \r'%(user,t),end='')
     return down_file
 
 def schedule(a,b,c):                            #下载进度
@@ -126,7 +122,6 @@ def schedule(a,b,c):                            #下载进度
         per = 100
     print ('%6.2f%%\r' % per,end='')
 
-
 def fun(imgurl,s):                                                  #循环出错下载
     try:
         socket.setdefaulttimeout(30)
@@ -134,7 +129,6 @@ def fun(imgurl,s):                                                  #循环出�
     except Exception as e:
         print(type(e),e)
         fun(imgurl,s)
-
 
 def show_update(all_down_file):                         #生成html更新文件
     file=open('update.html','w')
@@ -214,7 +208,7 @@ for i in range(1,col_num+1):                      #建立dir建立txt dirname=us
             file.close
         else:
             file.close
-    print('第%d个收藏夹已完成'%i)    
+    print('第%d个收藏夹已完成                       '%i)    
 show_update(all_down_file)
 print('all done')
             
