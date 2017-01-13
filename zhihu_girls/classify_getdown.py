@@ -162,6 +162,7 @@ if judge=='n':
 judge=input('请将collection.txt放入文件夹!')
 judge=input('请确认col_qalist.txt都已经全部生成!')
 col_num=get_col_num()
+print('收藏夹数目为:%d'%col_num)
 all_down_file=[]
 for i in range(1,col_num+1):                      #建立dir建立txt dirname=username  txt包含qa
     uqa_str=get_uqa_str(i)
