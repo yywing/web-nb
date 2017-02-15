@@ -1,0 +1,197 @@
+'''
+Created on 2017年1月23日
+
+@author: TOPSEC
+'''
+
+import urllib.request, urllib.parse
+import http.cookiejar
+import re
+import os
+import socket
+from ctypes.test.test_pickling import name
+
+
+def openurl(opener,request):                  #opener.open异常
+    try:
+        response=opener.open(request)
+    except Exception:
+        openurl(request)
+    return response
+
+def get_cookie():
+    LOGIN_URL = 'https://www.zhihu.com/login/phone_num'
+    phone_num=input('输入手机号:')
+    password=input('输入登陆密码:')
+    values = {'phone_num': phone_num, 'password': password,'remember_me':'ture'}
+    postdata = urllib.parse.urlencode(values).encode()
+    user_agent = r'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.157 Safari/537.36'
+    headers = {'User-Agent': user_agent, 'Connection': 'keep-alive'}
+    cookie_filename = 'cookie.txt'
+    cookie = http.cookiejar.MozillaCookieJar(cookie_filename)
+    handler = urllib.request.HTTPCookieProcessor(cookie)
+    opener = urllib.request.build_opener(handler)
+    request = urllib.request.Request(LOGIN_URL, postdata, headers)
+    response = openurl(opener,request)
+    page = response.read().decode()
+    cookie.save(ignore_discard=True, ignore_expires=True)  # 保存cookie到cookie.txt中
+
+def get_url(url):
+    user_agent = r'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.157 Safari/537.36'
+    headers = {'User-Agent': user_agent, 'Connection': 'keep-alive'}
+    cookie_filename = 'cookie.txt'
+    try:
+        cookie = http.cookiejar.MozillaCookieJar(cookie_filename)
+    except Exception as e:
+        print(type(e))
+        get_cookie()
+        cookie = http.cookiejar.MozillaCookieJar(cookie_filename)   
+    cookie.load(cookie_filename, ignore_discard=True, ignore_expires=True)
+    handler = urllib.request.HTTPCookieProcessor(cookie)
+    opener = urllib.request.build_opener(handler)
+    request = urllib.request.Request(url,headers=headers)
+    page = openurl(opener,request)
+    html=page.read().decode()
+    return html
+
+
+class collection(object):
+    '''
+    url是收藏夹地址
+    flag判断有无收藏夹记录文件
+    update_uqalist更新问答列表
+    __set_flag
+    __read_file从txt中读取内容
+    __get_name得到收藏夹名称
+    __get_page得到收藏夹页数
+    __get_qalist得到收藏夹问答列表
+    __write_collection将收藏夹写入txt
+    
+    '''
+
+
+    def __init__(self,url):
+        self.url=url
+        self.html=get_url(url)
+        self.name=self.__get_name(url)
+        self.filepath='..\\collection\\%s.txt'%name
+        self.flag=self.__set_flag(self.filepath)
+        if self.flag==1:
+            self.page,self.uqalist=self.__read_file(self.filepath)
+        else:
+            self.page=self.__get_page(url)
+            self.uqalist=self.__get_uqalist(self.url,self.page)
+            self.__write_collection(self.name,self.page,self.uqalist,self.filepath)
+            
+    def __set_flag(self,filepath):
+        try:
+            file=open(filepath,'rb')
+        except FileNotFoundError:
+            return 0
+        else:
+            file.close
+            return 1
+        
+    def __read_file(self,filepath):
+        file=open(filepath,'rb')
+        filelist_b=file.readlines()
+        file.close
+        filelist=[]
+        for i in filelist_b:
+            t=i.decode()
+            filelist.append(t)
+        page=int(filelist[0][:-2])
+        uqalist=[]
+        for i in filelist:
+            if i== filelist[0]:
+                continue
+            t=i[:-2]
+            uqalist.append(t)
+        return page,uqalist
+                    
+        
+    def __get_name(self,html):
+        reg='<title>([^-]+) - 收藏夹 - 知乎</title>'
+        rereg=re.compile(reg)
+        name=re.findall(rereg,html)
+        return name[0]
+    
+    def __get_page(self,html):
+        reg1='\"\?page=([0-9]+)\"'    #知乎收藏夹页面属性
+        rereg1=re.compile(reg1)
+        pagelist=re.findall(rereg1,html)
+        pagenumber=int(pagelist[-2])
+        return pagenumber
+    
+    def __get_uqalist(self,url,page):
+        reg2='data-author-name="([^"]+)" data-entry-url="/question/([0-9]+)/answer/([0-9]+)"'   #知乎网址格式/question/题目号/answer/答案号
+        qa=re.compile(reg2)
+        re_qalist=[]
+        for i in range(1,page+1):
+            url2=url+'?page=%d'%i
+            html=get_url(url2)
+            qa_list=re.findall(qa,html)
+            for i in qa_list:
+                if not i in re_qalist:
+                    re_qalist.append(i)
+        return re_qalist
+    
+    def __write_collection(self,name,page,uqalist,filepath):
+        file=open(filepath,'wb')
+        t=str(page)+'\r\n'
+        file.write(t.encode())
+        for i in range(0,len(uqalist)):
+            wri_lin=uqalist[i][0]+':'+uqalist[i][1]+' '+uqalist[i][2]+'\r\n'
+            file.write(wri_lin.encode())
+        file.close
+                
+    def update_uqalist(self,url,uqalist,name,page):
+        reg2='data-author-name="([^"]+)" data-entry-url="/question/([0-9]+)/answer/([0-9]+)"'   #知乎网址格式/question/题目号/answer/答案号
+        qa=re.compile(reg2)
+        re_qalist=[]
+        for i in range(1,page+1):
+            url2=url+'?page=%d'%i
+            html=get_url(url2)
+            qa_list=re.findall(qa,html)
+            for i in qa_list:
+                if not i in re_qalist:
+                    re_qalist.append(i)
+        uqalist=re_qalist
+        self.__write_collection(name,page,uqalist)
+    
+class QueAns(object):
+    '''
+    uqa 
+    
+    
+
+    
+    '''
+
+
+    def __init__(self,uqa):
+        self.uqa=uqa
+
+
+
+class user(object):
+    '''
+    
+
+    
+    '''
+
+
+    def __init__(self,url):
+
+
+
+if __name__=="__main__":       
+        
+    
+     
+        
+        
+        
+
+    
