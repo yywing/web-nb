@@ -1,0 +1,34 @@
+#coding=utf-8
+'''
+Created on 2017骞�1鏈�22鏃�
+
+@author: TOPSEC
+'''
+
+import threading
+
+
+
+class MyTreading(threading.Thread):
+    def __init__(self,threadingSum, ip):
+        threading.Thread.__init__(self)
+        self.ip = ip
+        self.threadingSum = threadingSum
+                                                             
+    def run(self):
+        
+                                                                 
+if __name__ == "__main__":
+    #璁剧疆绾跨▼鏁�
+    threadingSum = threading.Semaphore(1)
+                                                         
+    #鍚姩绾跨▼
+    for ip in list:
+        t = MyTreading(threadingSum,ip)
+        t.start()
+    #绛夊緟鎵�鏈夌嚎绋嬬粨鏉�
+    for t in threading.enumerate():
+        if t is threading.currentThread():
+            continue
+        t.join()
+                                                             
