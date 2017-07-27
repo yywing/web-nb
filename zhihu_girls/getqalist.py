@@ -8,6 +8,7 @@ Created on 2016��11��18��
 import urllib.request, urllib.parse
 import http.cookiejar
 import re
+import os
 
 def get_cookie():
     LOGIN_URL = 'https://www.zhihu.com/login/phone_num'
@@ -59,7 +60,8 @@ def get_re_qa(qalist,re_qalist):     #去重复,并最终生成收藏问题列�
     return re_qalist
 
 def write_re_qalist(col_num,re_qalist):
-    file=open('collection\\%d_col_qalist.txt'%col_num,'wb')
+    my_path=os.path.join("collection","%d_col_qalist.txt"%col_num)
+    file=open(my_path,'wb')
     for i in range(0,len(re_qalist)):
         wri_lin=re_qalist[i][0]+':'+re_qalist[i][1]+' '+re_qalist[i][2]+'\r\n'
         file.write(wri_lin.encode())
@@ -73,13 +75,15 @@ if judge=='n':
 judge=input('请将collection.txt放入文件夹!')
 file=open('collection.txt','r')
 urllist=file.readlines()
-urllist.remove('\n')
+if '\n' in urllist :
+    urllist.remove('\n')
 file.close
 col_num=1
 for url in urllist:
     if url=='':
         break
-    url=url[:-1]                                #去掉换行符
+    if url[-1]=='\n':
+        url=url[:-1]                                    #去掉换行符
     html=get_url(url)
     pagenumber=get_page(html)
     qalist=get_qa(html)

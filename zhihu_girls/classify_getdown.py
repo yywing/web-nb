@@ -42,13 +42,15 @@ def get_rename(dir_list):                       #得到重名文件夹字典
     return(rename)
 
 def get_uqa_str(i):
-    file=open('collection\\%d_col_qalist.txt'%i,'rb')
+    my_path=os.path.join("collection","%d_col_qalist.txt"%i)
+    file=open(my_path,'rb')
     uqa_str=file.readlines()
     return uqa_str
 
 def new_dir(dirname):
     os.makedirs(dirname)
-    file=open('%s\\qa.txt'%dirname,'wb')
+    my_path=os.path.join(dirname,"qa.txt")
+    file=open(my_path,'wb')
     file.close
     print('%s 向您奔来!                                          \r'%dirname,end='' )
     
@@ -103,7 +105,7 @@ def getdown_img(re_imglist,t,user,down_file):                    #下载图片�
     n=len(re_imglist)    
     for imgurl in re_imglist:
         print('           /%3d                                \r'%n,end='')
-        s= '%s\\%s-%s.jpg'%(user,t,i)
+        s=os.path.join(user,"%s-%s.jpg"%(t,i))
         print("        %3d\r"%i,end='')
         fun(imgurl,s)
         down_file.append(s)
@@ -185,7 +187,8 @@ for i in range(1,col_num+1):                      #建立dir建立txt dirname=us
                     new_dir(user)
                 else:
                     user=user+'0828'
-        file=open('%s\\qa.txt'%user,'rb')
+        file_path=os.path.join(user,"qa.txt")
+        file=open(file_path,'rb')
         qa_list=file.readlines()
         if qa not in qa_list:
             file.close
@@ -203,8 +206,8 @@ for i in range(1,col_num+1):                      #建立dir建立txt dirname=us
                     re_imglist.append(t)
             down_file=[]
             down_file=getdown_img(re_imglist,qa_num,user,down_file)
-
-            file=open('%s\\qa.txt'%user,'ab')
+            file_path=os.path.join(user,"qa.txt")
+            file=open(file_path,'ab')
             file.write(qa)
             file.close
         else:
